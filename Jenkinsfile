@@ -1,22 +1,56 @@
 pipeline {
     agent any
-    
+
+    parameters {
+        string(name: 'ENVIRONMENT', defaultValue: 'prod', description: 'Environment to deploy to')
+    }
+
+    environment {
+        PROD_URL = 'https://prod.example.com'
+        DEPLOY_SCRIPT = './deploy-prod.sh'  // Your production deploy script
+    }
+
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Build') {
             steps {
-                echo 'Building...'
+                script {
+                    echo "Building project for ${params.ENVIRONMENT} environment"
+                    sh 'python devops.py' // Adjust your build steps as needed
+                }
             }
         }
-          stage('Test') {
+
+        stage('Deploy to Production') {
             steps {
-                echo 'Testing...'
+                script {
+                    echo "Deploying to Production environment..."
+                    sh DEPLOY_SCRIPT
+                }
             }
         }
-          stage('Deploy') {
+
+        stage('Test Production') {
             steps {
-                echo 'Deploying...'
+                script {
+                    echo "Running tests on Production..."
+                    sh './run-prod-tests.sh' // Adjust with your test script
+                }
             }
         }
-        
+    }
+
+    post {
+        success {
+            echo "Deployment to Production was successful!"
+        }
+        failure {
+            echo "Deployment to Production failed!"
+        }
     }
 }
