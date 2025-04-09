@@ -21,7 +21,7 @@ pipeline {
             steps {
                 script {
                     echo "Building project for ${params.ENVIRONMENT} environment"
-                    sh 'mvn clean install' // Adjust your build steps as needed
+                    sh 'python devops.py' // Adjust your build steps as needed
                 }
             }
         }
